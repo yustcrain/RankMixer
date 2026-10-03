@@ -228,5 +228,5 @@ class PReMoE(nn.Module):
 
         outputs = []
         for t in range(self.token_dim):
-            outputs.append(self.remoes[t](x[:, t, :])) # 每个head作用自己的remoe
+            outputs.append(self.remoes[t](x[:, t, :])) # 每个head作用自己的remoe，经过x[:, t, :]后，维度变为(B, T*D/H)
         return torch.stack(outputs, dim=1)

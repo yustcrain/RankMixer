@@ -31,9 +31,6 @@ tokenmixing部分主要是将token向量进行分块并进行重新拼接，具�
 每个头的token会进入FFN进行处理，维度为(B, T $\times$ D/H)，经过FFN后，维度不变。这里有两条路径，其中一条是进入router进行路由，另一条是直接进入FFN进行处理，最后将两条路径的结果进行加权求和。
 
 
-
-
-
 ### Reference{
     https://arxiv.org/pdf/2507.15551v3
 }
