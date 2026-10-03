@@ -181,14 +181,14 @@ class ReMoE(nn.Module):
         if self.d_model != D:
             raise ValueError(f'Input shape mismatch: expected (*, {self.d_model}), got {x.shape}')
 
-        gates = self.router(x)
+        gates = self.router(x) # shape (B, E)
 
         expert_outputs = []
         for e in range(self.num_experts):
-            out_e = self.experts[e](x)
+            out_e = self.experts[e](x)   # shape (B, D)
             expert_outputs.append(out_e)
 
-        expert_outputs = torch.stack(expert_outputs, dim=1)
+        expert_outputs = torch.stack(expert_outputs, dim=1) # shape (B, E, D)
         out = torch.sum(expert_outputs * gates.unsqueeze(-1), dim=1)
 
         return out
@@ -213,10 +213,10 @@ class PReMoE(nn.Module):
     ):
         super().__init__()
 
-        self.d_model = d_model
-        self.token_dim = token_dim
+        self.d_model = d_model  # 每个token的维度
+        self.token_dim = token_dim # 一个batch中token的数量
 
-        self.remoes = nn.ModuleList([ReMoE(d_model, num_experts, expansion_ratio) for _ in range(token_dim)])
+        self.remoes = nn.ModuleList([ReMoE(d_model, num_experts, expansion_ratio) for _ in range(token_dim)]) # 为每一个head创建一个ReMoE模块
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if x.dim() != 3:
@@ -228,6 +228,5 @@ class PReMoE(nn.Module):
 
         outputs = []
         for t in range(self.token_dim):
-            outputs.append(self.remoes[t](x[:, t, :]))
-
+            outputs.append(self.remoes[t](x[:, t, :])) # 每个head作用自己的remoe
         return torch.stack(outputs, dim=1)
